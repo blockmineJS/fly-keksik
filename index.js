@@ -50,7 +50,7 @@ module.exports = (bot, options) => {
                 cooldown: 60,
                 permissions: PERMISSION_NAME,
                 owner: 'plugin:fly-keksik',
-                allowedChatTypes: ['private', 'local', 'global', 'clan'],
+                allowedChatTypes: ['clan'],
                 args: []
             });
         }
