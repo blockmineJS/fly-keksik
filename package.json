@@ -1,0 +1,59 @@
+{
+    "name": "fly-keksik",
+    "version": "1.0.2",
+    "description": "Добавляет команду /fly для серверов MineBlaze, MasedWorld, DexLand, CheatMine.",
+    "main": "index.js",
+    "author": "blockmineJS",
+    "botpanel": {
+        "supportedHosts": [
+            "mc.mineblaze.net",
+            "mc.masedworld.net",
+            "mc.cheatmine.net",
+            "mc.dexland.org"
+        ],
+        "dependencies": {
+            "parser-keksik": "*"
+        },
+        "settings": {
+            "successOnMessages": {
+                "type": "string[]",
+                "label": "Сообщения при включении полета (случайное)",
+                "description": "Каждая строка - новый вариант. Используйте {username} для подстановки ника.",
+                "default": [
+                    "Режим полета для вас включен, {username}.",
+                    "Лети, {username}, лети!",
+                    "Взлетаем, {username}!"
+                ]
+            },
+            "successOffMessages": {
+                "type": "string[]",
+                "label": "Сообщения при выключении полета (случайное)",
+                "description": "Каждая строка - новый вариант. Используйте {username}.",
+                "default": [
+                    "Режим полета для вас выключен, {username}.",
+                    "Приземлились, {username}.",
+                    "{username}, полет окончен."
+                ]
+            },
+            "cooldownMessages": {
+                "type": "string[]",
+                "label": "Сообщения о перезарядке (случайное)",
+                "description": "Каждая строка - новый вариант. Используйте {username} и {timeleft}.",
+                "default": [
+                    "&cКоманда на перезарядке. Попробуйте через {timeleft} секунд.",
+                    "&cНе так быстро, {username}! Осталось {timeleft} сек.",
+                    "&cПодожди еще {timeleft} сек."
+                ]
+            },
+            "serverErrorMessages": {
+                "type": "string[]",
+                "label": "Сообщения об ошибке сервера (случайное)",
+                "description": "Сообщение, если сервер не ответил на команду вовремя.",
+                "default": [
+                    "❗️ Сервер не ответил на команду. Попробуйте еще раз.",
+                    "❗️ Что-то пошло не так. Сервер молчит."
+                ]
+            }
+        }
+    }
+}
