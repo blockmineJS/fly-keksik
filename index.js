@@ -30,10 +30,8 @@ module.exports = (bot, options) => {
                 owner: 'plugin:fly-keksik'
             }]);
 
-            if (bot.api.installedPlugins.includes('parser-keksik')) {
-                log(`[FlyPlugin] Обнаружен 'parser-keksik'. Добавляем право '${PERMISSION_NAME}' в группу '${GROUP_NAME_MEMBER}'.`);
-                await bot.api.addPermissionsToGroup(GROUP_NAME_MEMBER, [PERMISSION_NAME]);
-            }
+            await bot.api.addPermissionsToGroup(GROUP_NAME_MEMBER, [PERMISSION_NAME]);
+            
         } catch (error) {
             log(`[FlyPlugin] Ошибка при настройке прав: ${error.message}`);
         }
