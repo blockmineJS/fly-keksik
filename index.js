@@ -1,4 +1,13 @@
-module.exports = (bot, options) => {
+
+const PERMISSION_NAME = 'user.fly';
+const COMMAND_NAME = 'fly';
+const PLUGIN_OWNER_ID = 'plugin:fly-keksik';
+const MEMBER_GROUP_NAME = 'Member';
+
+/**
+ * Функция, выполняемая при запуске бота с этим плагином.
+ */
+async function onLoad(bot, options) {
     const log = bot.sendLog;
     const Command = bot.api.Command;
     
@@ -11,43 +20,19 @@ module.exports = (bot, options) => {
     };
 
     const getRandomMessage = (messageArray) => {
-        if (!Array.isArray(messageArray) || messageArray.length === 0) {
-            return "";
-        }
-        const randomIndex = Math.floor(Math.random() * messageArray.length);
-        return messageArray[randomIndex];
+        if (!Array.isArray(messageArray) || messageArray.length === 0) return "";
+        return messageArray[Math.floor(Math.random() * messageArray.length)];
     };
-
-    const PERMISSION_NAME = 'user.fly';
-    const GROUP_NAME_MEMBER = 'Member';
-
-    async function setupPermissions() {
-        try {
-            log('[FlyPlugin] Регистрация прав...');
-            await bot.api.registerPermissions([{
-                name: PERMISSION_NAME,
-                description: 'Разрешает использовать команду /fly.',
-                owner: 'plugin:fly-keksik'
-            }]);
-
-            await bot.api.addPermissionsToGroup(GROUP_NAME_MEMBER, [PERMISSION_NAME]);
-            
-        } catch (error) {
-            log(`[FlyPlugin] Ошибка при настройке прав: ${error.message}`);
-        }
-    }
-
-    setupPermissions();
 
     class FlyCommand extends Command {
         constructor() {
             super({
-                name: 'fly',
+                name: COMMAND_NAME,
                 description: 'Включает или выключает режим полета для игрока.',
                 aliases: ['флай'],
                 cooldown: 60,
                 permissions: PERMISSION_NAME,
-                owner: 'plugin:fly-keksik',
+                owner: PLUGIN_OWNER_ID,
                 allowedChatTypes: ['clan'],
                 args: []
             });
@@ -66,41 +51,61 @@ module.exports = (bot, options) => {
                 );
 
                 if (successOnPattern.test(match[0])) {
-                    const template = getRandomMessage(messages.successOn);
-                    const reply = template.replace('{username}', user.username);
+                    const reply = getRandomMessage(messages.successOn).replace('{username}', user.username);
                     bot.api.sendMessage(typeChat, reply, user.username);
                 } else if (successOffPattern.test(match[0])) {
-                    const template = getRandomMessage(messages.successOff);
-                    const reply = template.replace('{username}', user.username);
+                    const reply = getRandomMessage(messages.successOff).replace('{username}', user.username);
                     bot.api.sendMessage(typeChat, reply, user.username);
                 } else if (cooldownPattern.test(match[0])) {
                     const timeLeft = match[1];
-                    const template = getRandomMessage(messages.cooldown);
-                    const reply = template.replace('{username}', user.username).replace('{timeleft}', timeLeft);
+                    const reply = getRandomMessage(messages.cooldown).replace('{timeleft}', timeLeft);
                     bot.api.sendMessage(typeChat, reply, user.username);
                 }
-
             } catch (error) {
-                bot.sendLog(`[FlyPlugin] Ошибка: ${error.message}`);
-                const template = getRandomMessage(messages.serverError);
-                const reply = template.replace('{username}', user.username);
+                log(`[${PLUGIN_OWNER_ID}] Ошибка: ${error.message}`);
+                const reply = getRandomMessage(messages.serverError).replace('{username}', user.username);
                 bot.api.sendMessage(typeChat, reply, user.username);
             }
         }
     }
 
-    const flyCommandInstance = new FlyCommand();
-    if (bot.commands.has(flyCommandInstance.name)) {
-         log(`[FlyPlugin] Внимание: Команда '${flyCommandInstance.name}' уже существует и будет перезаписана этим плагином.`);
-    }
-    bot.commands.set(flyCommandInstance.name, flyCommandInstance);
-
-    log('[FlyPlugin] Плагин команды /fly успешно загружен и зарегистрирован.');
-
-    bot.once('end', () => {
-        if (bot.commands.get(flyCommandInstance.name) === flyCommandInstance) {
-            bot.commands.delete(flyCommandInstance.name);
-            log(`[FlyPlugin] Команда '${flyCommandInstance.name}' выгружена.`);
+    try {
+        await bot.api.registerCommand(new FlyCommand());
+        
+        if (bot.api.installedPlugins.includes('parser-keksik')) {
+            log(`[${PLUGIN_OWNER_ID}] Добавляем право '${PERMISSION_NAME}' в группу '${MEMBER_GROUP_NAME}'.`);
+            await bot.api.addPermissionsToGroup(MEMBER_GROUP_NAME, [PERMISSION_NAME]);
         }
-    });
+    } catch (error) {
+        log(`[${PLUGIN_OWNER_ID}] Критическая ошибка при регистрации команды: ${error.message}`);
+    }
+};
+
+/**
+ * Функция, выполняемая перед удалением плагина из системы.
+ */
+async function onUnload({ botId, prisma }) {
+    console.log(`[${PLUGIN_OWNER_ID}] Начало процедуры удаления для бота ID: ${botId}`);
+    try {
+        const deletedCommand = await prisma.command.deleteMany({
+            where: { botId, name: COMMAND_NAME, owner: PLUGIN_OWNER_ID },
+        });
+        if (deletedCommand.count > 0) {
+            console.log(`[${PLUGIN_OWNER_ID}] Команда '${COMMAND_NAME}' успешно удалена из БД.`);
+        }
+        
+        const deletedPermission = await prisma.permission.deleteMany({
+            where: { botId, name: PERMISSION_NAME, owner: PLUGIN_OWNER_ID },
+        });
+        if (deletedPermission.count > 0) {
+            console.log(`[${PLUGIN_OWNER_ID}] Право '${PERMISSION_NAME}' успешно удалено из БД.`);
+        }
+    } catch (error) {
+        console.error(`[${PLUGIN_OWNER_ID}] Ошибка во время очистки ресурсов плагина:`, error);
+    }
+}
+
+module.exports = {
+    onLoad,
+    onUnload
 };
