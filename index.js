@@ -39,8 +39,8 @@ async function onLoad(bot, options) {
         }
 
         async handler(bot, typeChat, user) {
-            const successOnPattern = /^›\s*Установлен режим полета включен для/i;
-            const successOffPattern = /^›\s*Установлен режим полета выключено для/i;
+            const successOnPattern = /^(›|\|)\s*Установлен режим полета включен для/i;
+            const successOffPattern = /^(›|\|)\s*Установлен режим полета выключено для/i;
             const cooldownPattern = /^\[\*\]\s*Эта команда будет доступна через (\d+) секунд/i;
 
             try {
