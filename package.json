@@ -1,6 +1,6 @@
 {
     "name": "fly-keksik",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Добавляет команду /fly для серверов MineBlaze, MasedWorld, DexLand, CheatMine. Сама обрабатывает если кд. можно настраивать сообщения",
     "main": "index.js",
     "author": "blockmineJS",
